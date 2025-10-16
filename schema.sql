@@ -27,26 +27,26 @@ CREATE TABLE especialidade (
 -- A tabela 'pessoa' guarda os dados comuns a todos (nome, email, etc.). Escolhi essa
 -- abordagem para evitar a duplicação de colunas e facilitar a adição de novos papéis no futuro.
 
-CREATE TABLE pessoa (
+
+-- Tabelas de Entidades Principais
+
+CREATE TABLE aluno (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(60) NOT NULL UNIQUE,
     genero tipo_genero,
     data_nascimento DATE, 
-    data_cadastro TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
--- Tabelas Subtipo  
-
-CREATE TABLE aluno (
-    id SERIAL PRIMARY KEY,
-    pessoa_id INT NOT NULL UNIQUE REFERENCES pessoa(id),
+    data_cadastro TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     como_nos_conheceu tipo_fonte_conhecimento
 );
 
 CREATE TABLE instrutor (
-    id SERIAL PRIMARY KEY,
-    pessoa_id INT NOT NULL UNIQUE REFERENCES pessoa(id),
+     id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(60) NOT NULL UNIQUE,
+    genero tipo_genero,
+    data_nascimento DATE, 
+    data_cadastro TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     biografia TEXT
 );
 
