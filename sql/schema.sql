@@ -8,7 +8,7 @@ CREATE TYPE tipo_aula AS ENUM ('video', 'texto', 'quiz');
 CREATE TYPE tipo_status_matricula AS ENUM ('ativa', 'concluida', 'cancelada', 'pendente');
 CREATE TYPE tipo_metodo_pagamento AS ENUM ('Cartão de Crédito','Pix','Boleto');
 CREATE TYPE tipo_status_pagamento AS ENUM ('Pendente','Aprovado','Recusado','Estornado');
-CREATE TYPE tipo_genero AS ENUM ('Masculino', 'Feminino', 'Não Binário', 'Outros', 'Prefiro Não Informar');
+CREATE TYPE tipo_genero AS ENUM ('Masculino', 'Feminino', 'Não Binário');
 
 -- Tabelas de Apoio e Referência
 
@@ -22,11 +22,6 @@ CREATE TABLE especialidade (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL UNIQUE
 );
-
--- Abaixo, eu implemento a arquitetura de Supertipo/Subtipo para os usuários.
--- A tabela 'pessoa' guarda os dados comuns a todos (nome, email, etc.). Escolhi essa
--- abordagem para evitar a duplicação de colunas e facilitar a adição de novos papéis no futuro.
-
 
 -- Tabelas de Entidades Principais
 
