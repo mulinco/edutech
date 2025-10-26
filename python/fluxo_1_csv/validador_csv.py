@@ -1,13 +1,21 @@
 import pandas as pd
 from pathlib import Path
 from utils import validar_email
+import logging
+from typing import List, Dict, Set, Optional, Any
 
-def validar_csv(caminho_arquivo, colunas_obrigatorias, ids_existentes=None):
+
+def validar_csv(
+    caminho_arquivo: Path, 
+    colunas_obrigatorias: List[str], 
+    ids_existentes: Optional[Dict[str, Set[int]]] = None) -> List[str]:
     erros = []
     nome_arquivo = caminho_arquivo.name
     try:
         df = pd.read_csv(caminho_arquivo)
     except FileNotFoundError:
+        erro_msg = f"Arquivo não encontrado: {caminho_arquivo}"
+        logging.error(f"[{nome_arquivo}] {erro_msg}")
         return [f"Arquivo não encontrado: {caminho_arquivo}"]
     
     for coluna in colunas_obrigatorias:
@@ -32,38 +40,31 @@ def validar_csv(caminho_arquivo, colunas_obrigatorias, ids_existentes=None):
                         erros.append(f"[{nome_arquivo}] Linha {linha_num}: ID '{int(valor_fk)}' na coluna '{coluna_fk}' não existe na tabela de referência.")
     return erros
 
-def main():
-    pasta_data = Path("data")
-    relatorio_final = []
-    print("\nCarregando IDs de referência...")
+def main() -> List[str]:
+    pasta_data: Path = Path("data")
+    relatorio_final: List[str] = []
+    logging.info("\nCarregando IDs de referência...")
     try:
-        ids_alunos = set(pd.read_csv(pasta_data / "aluno.csv")['id'])
-        ids_instrutores = set(pd.read_csv(pasta_data / "instrutor.csv")['id'])
-        ids_cursos = set(pd.read_csv(pasta_data / "curso.csv")['id'])
-        ids_aulas = set(pd.read_csv(pasta_data / "aula.csv")['id'])
-        ids_matriculas = set(pd.read_csv(pasta_data / "matricula.csv")['id'])
-        print("IDs carregados com sucesso.")
+        ids_alunos: Set[int] = set(pd.read_csv(pasta_data / "aluno.csv")['id'])
+        ids_instrutores: Set[int] = set(pd.read_csv(pasta_data / "instrutor.csv")['id'])
+        ids_cursos: Set[int] = set(pd.read_csv(pasta_data / "curso.csv")['id'])
+        ids_aulas: Set[int] = set(pd.read_csv(pasta_data / "aula.csv")['id'])
+        ids_matriculas: Set[int] = set(pd.read_csv(pasta_data / "matricula.csv")['id'])
+        logging.info("IDs carregados com sucesso.")
     except (FileNotFoundError, KeyError) as e:
-        print(f"Erro crítico ao carregar IDs: {e}. Verifique se o 'gerador_dados.py' foi executado corretamente.")
+        logging.error(f"Erro crítico ao carregar IDs: {e}. Verifique se o 'gerador_dados.py' foi executado corretamente.")
         return [str(e)]
         
-    regras = {
+    regras: Dict[str, Dict[str, Any]] = {
         "aluno.csv": {"colunas_obrigatorias": ['id', 'nome', 'email'], "ids_existentes": {}},
         "curso.csv": {"colunas_obrigatorias": ['id', 'titulo', 'instrutor_id'], "ids_existentes": {"instrutor_id": ids_instrutores}},
         "matricula.csv": {"colunas_obrigatorias": ['id', 'aluno_id', 'curso_id'], "ids_existentes": {"aluno_id": ids_alunos, "curso_id": ids_cursos}},
         "avaliacoes.csv": {"colunas_obrigatorias": ['id', 'matricula_id', 'curso_id', 'nota'], "ids_existentes": {"matricula_id": ids_matriculas, "curso_id": ids_cursos}},
     }
     for arquivo, regras_arquivo in regras.items():
-        print(f"Validando arquivo: {arquivo}...")
+        logging.info(f"Validando arquivo: {arquivo}...")
         erros = validar_csv(pasta_data / arquivo, regras_arquivo['colunas_obrigatorias'], regras_arquivo['ids_existentes'])
         if erros: relatorio_final.extend(erros)
-        else: print(f" -> {arquivo} está VÁLIDO.")
+        else: logging.info(f" -> {arquivo} está VÁLIDO.")
     return relatorio_final
 
-if __name__ == "__main__":
-    erros = main()
-    if erros:
-        print("\n\n--- ❌ RELATÓRIO DE ERROS DE VALIDAÇÃO ---")
-        for erro in erros: print(erro)
-    else:
-        print("\n\n--- ✅ SUCESSO! Todos os arquivos foram validados. ---")

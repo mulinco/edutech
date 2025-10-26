@@ -118,96 +118,88 @@ O processo segue 3 etapas seguras para garantir a qualidade dos dados:
 
 ## ▶️ Como Executar o Projeto
 
+Este projeto oferece dois pipelines de software distintos para popular o banco de dados, além de um pipeline de análise.
+
 ### Pré-requisitos:
 
-- PostgreSQL instalado e um banco de dados edutech_db criado.
+* **PostgreSQL:** Um servidor PostgreSQL instalado e rodando (ex: via pgAdmin).
+* **Banco de Dados:** Um banco de dados `edutech_db` deve ser criado manualmente.
+* **Python 3.9+:** Instalado e configurado no seu PATH.
+* **Dependências Python:** Instale todas as bibliotecas necessárias com um único comando:
+    ```bash
+    pip install pandas faker pytz psycopg2-binary
+    ```
 
-- Python 3.9+ instalado.
+---
+### Fluxo 1: Pipeline de Geração de CSV (Simulação de ETL)
 
-- Instalar as dependências: `pip install pandas faker pytz`
+Este fluxo simula um cenário de Data Analytics, onde os dados são gerados, validados em arquivos CSV e depois importados manualmente no banco.
 
-### Passo a Passo:
+**Etapa 1: Criar a Estrutura do Banco**
+* Execute o script `schema.sql` no seu pgAdmin para criar todas as tabelas e tipos.
+* Execute o script `dados.sql` para popular as tabelas de apoio (`categoria` e `especialidade`).
 
-- Setup do Banco de Dados:
-
-- Execute o script `schema.sql` para criar a estrutura do banco.
-
-- Execute o script `dados.sql` (se houver) para popular tabelas de apoio como categoria e especialidade.
-
-- Executar o Pipeline de Dados:
-
-No terminal, na pasta raiz do projeto (edutech), execute o comando: 
-
-```
+**Etapa 2: Gerar, Validar e Limpar os CSVs**
+No terminal, na pasta raiz do projeto (`edutech`), execute o orquestrador principal:
+```bash
 python python/main.py
 ```
 
-### Passo a Passo:
+    O que ele faz? Este script executa 3 passos em ordem:
 
-- Setup do Banco de Dados:
+        Gera os dados fictícios (com id temporário) e salva na pasta /data.
 
-    Execute o script `schema.sql` para criar a estrutura do banco.
+        Valida a integridade referencial entre esses arquivos (lendo a coluna id).
 
-    Execute o script `dados.sql` (se houver) para popular tabelas de apoio como categoria e especialidade.
+        Limpa os arquivos, removendo a coluna id para prepará-los para a importação.
 
-- Executar o Pipeline de Dados:
+**Etapa 3: Importar os Dados Manualmente no pgAdmin**
+
+    Limpe as tabelas (se necessário) com o comando TRUNCATE ... RESTART IDENTITY CASCADE;.
+
+    Importe cada arquivo CSV da pasta data/ para a sua tabela correspondente, seguindo a ordem de dependência:
+
+         Grupo 1: aluno.csv, instrutor.csv
+
+         Grupo 2: curso.csv, instrutor_especialidade.csv
+
+         Grupo 3: modulo.csv
+
+         Grupo 4: aula.csv
+
+         Grupo 5: matricula.csv, pagamento.csv, progresso_aula.csv, avaliacoes.csv
+
+    Configuração de Importação (Para cada arquivo):
+
+        Aba General: Encoding: UTF-8
+
+        Aba Options: Header: Yes
+
+        Aba Columns: Não é preciso fazer nada, pois os arquivos CSV já estão limpos e sem a coluna id.
+
+### Fluxo 2: População Direta (O "Botão Mágico")
+
+Este script simula um pipeline de back-end automatizado. Ele faz TUDO de uma só vez: limpa o banco, recria o schema, insere os dados de base e gera todos os dados fictícios diretamente no PostgreSQL.
+
+Ação (Um único comando):
 
     No terminal, na pasta raiz do projeto (edutech), execute o comando:
-        Bash
+    Bash
 
-    ```
-    python python/main.py
-    ```
+    python python/popular_banco.py
 
-#### Aguarde a conclusão. A pasta data/ conterá os arquivos CSV limpos.
+**Resultado:** Em segundos, seu banco de dados edutech_db estará 100% limpo, estruturado e populado com centenas de registros, pronto para a análise.
 
-- Importar os Dados no pgAdmin:
+### Fluxo 3: Análise e Geração de Relatórios
 
-> Limpe as tabelas (se necessário) com o comando `TRUNCATE ... RESTART IDENTITY CASCADE;`.
+Após popular o banco (usando o Fluxo 1 ou o Fluxo 2), você pode executar o processador de relatórios.
 
-> Importe cada arquivo CSV para a tabela correspondente, seguindo a ordem de dependência:
+    No terminal, na pasta raiz do projeto (edutech), execute o comando:
+    Bash
 
-Grupo 1: As Fundações (Tabelas sem dependências externas) *Estas tabelas não dependem de nenhuma outra. Você pode importá-las em qualquer ordem dentro deste grupo.
+    python python/processador_relatorios.py
 
-    🧱 categoria.csv
-
-    🧱 especialidade.csv
-
-    🧱 aluno.csv
-
-    🧱 instrutor.csv
-
-Grupo 2: Primeiras Dependências (Dependem do Grupo 1) *Estas tabelas precisam que os dados do Grupo 1 já existam.  
-
-    🏠 curso.csv (depende de categoria e instrutor)
-
-    🏠 instrutor_especialidade.csv (depende de instrutor e especialidade)
-
-Grupo 3: Dependências de Cursos 
-
-    🚪 modulo.csv (depende de curso)
-
-
-Grupo 4: Dependências de Módulos 8. 
-
-    💡 aula.csv (depende de modulo)
-
-
-
-Grupo 5: Ações e Eventos (Dependem de múltiplas tabelas já populadas) *Esta é a etapa final, que conecta tudo.*
-
-
-    🛋️ matricula.csv (depende de aluno e curso) 
-
-    🛋️ pagamento.csv (depende de matricula) 
-
-    🛋️ progresso_aula.csv (depende de matricula e aula) 
-
-    🛋️ avaliacoes.csv (depende de matricula e curso)
-
-
-
-Nas configurações de importação, garanta que Header esteja ativado e `Encoding` seja `UTF-8`.
+**Resultado:** Uma nova pasta relatorios/ será criada no seu projeto, contendo o arquivo relatorio_edutech.md com todas as análises de negócio, tabelas formatadas, gráficos em ASCII e insights.
 
 ## 🏁 Conclusão e Resultados
 
@@ -216,7 +208,7 @@ Nas configurações de importação, garanta que Header esteja ativado e `Encodi
 
 ### Apresentação de Slides
 
-Para uma visão geral completa do projeto, incluindo a demonstração das consultas SQL e do pipeline, acesse a apresentação no Canva:
+Para uma visão geral completa do projeto, acesse a apresentação no Canva:
 
 ➡️ **[Acessar Slides da Apresentação do Projeto EduTech](https://www.canva.com/design/DAG2GjAi-Cw/eV7U_GQOQdGMlXymsvtIbg/view)**
 

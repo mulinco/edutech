@@ -31,7 +31,6 @@ INSERT INTO especialidade (nome) VALUES
 ('SQL'),
 ('HTML/CSS');
 
-
 INSERT INTO categoria (nome, descricao) VALUES
 ('Desenvolvimento Web', 'Cursos focados em tecnologias para a construção de sites e aplicações web, do front-end ao back-end.'),
 ('Ciência de Dados', 'Aprenda a analisar dados, criar modelos de machine learning e extrair insights valiosos para negócios.'),

@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS aluno, instrutor, categoria, especialidade, curso, modulo, aula, matricula, pagamento, progresso_aula, avaliacoes, instrutor_especialidade CASCADE;
+DROP TYPE IF EXISTS tipo_fonte_conhecimento, tipo_nivel_curso, tipo_aula, tipo_status_matricula, tipo_metodo_pagamento, tipo_status_pagamento, tipo_genero CASCADE;
+
 -- Primeiro, eu defini todos os meus tipos ENUM customizados. Decidi usar ENUMs em vez de
 -- tabelas de consulta ou constraints CHECK para garantir a integridade dos dados e
 -- otimizar o armazenamento, já que essas são listas de valores que raramente mudam.
@@ -91,7 +94,7 @@ CREATE TABLE matricula (
     curso_id INT NOT NULL REFERENCES curso(id),
     data_matricula DATE NOT NULL DEFAULT CURRENT_DATE,
     data_conclusao DATE,
-    status status_matricula NOT NULL,
+    status tipo_status_matricula NOT NULL,
     UNIQUE (aluno_id, curso_id)
 );
 

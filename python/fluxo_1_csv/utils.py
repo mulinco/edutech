@@ -5,8 +5,9 @@ import pytz  #Esta biblioteca serve para gerenciar fusos horários (time zones) 
 import unicodedata #Esta biblioteca nativa ajuda lidar com caracteres unicode(acentos)
 import random #Biblioteca para aleatorizar escolhas
 import re
+from typing import Optional, Union
 
-def padronizar_data(data_obj, fuso_horario_str='America/Sao_Paulo'):
+def padronizar_data(data_obj: Optional[Union[date, datetime]], fuso_horario_str: str = 'America/Sao_Paulo') -> Optional[str]:
     """
 Eu criei esta função para padronizar o formato das datas.
 Ela pega um objeto de data ou data/hora do Python e o transforma numa
@@ -24,7 +25,7 @@ string no formato ISO, que é o padrão que o PostgreSQL entende e espera.
     return None
 
 
-def criar_email_do_nome(nome_completo):
+def criar_email_do_nome(nome_completo: str) -> str:
     """
     Cria um endereço de email realista a partir de um nome completo.
 
@@ -47,7 +48,7 @@ def criar_email_do_nome(nome_completo):
 
 
 
-def validar_email(email):
+def validar_email(email: Optional[str]) -> bool:
     """
     Valida o formato de um endereço de email usando uma expressão regular simples.
 
@@ -60,5 +61,5 @@ def validar_email(email):
     if not isinstance(email, str):
         return False
     # Expressão regular simples para o formato 'algo@algo.algo'
-    padrao = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    padrao: str = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(padrao, email) is not None
