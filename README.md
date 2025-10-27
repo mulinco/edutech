@@ -30,11 +30,11 @@ Este projeto implementa um pipeline de dados automatizado para a plataforma de c
 #### Substitua pelo URL real
 
 ```bash
-git clone [https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git](https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git)
+git clone https://github.com/mulinco/edutech.git
 ```
 
 ```bash
-cd SEU_REPOSITORIO
+cd edutech
 ```
 
 **2. Configure o Ambiente (.env)**
